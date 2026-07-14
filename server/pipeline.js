@@ -1,7 +1,6 @@
 import { callModel } from "./openrouter.js";
 import { AGENT_MODELS, AGENT_ROLES } from "./models.js";
-import { socialPostMessages } from "./prompts.js";
-import { enforceConstitution, retryMessages } from "./enforce.js";
+import { plannerMessages, writerMessages } from "./prompts.js";
 
 /**
  * @typedef {{ name: string, title: string }} PersonInput
@@ -9,8 +8,9 @@ import { enforceConstitution, retryMessages } from "./enforce.js";
  */
 
 /**
- * Anayasaya bağlı, tek model ile Instagram paylaşım metni üretir.
- * (Eski 3 ajanlı hat maliyeti düşürmek için kaldırıldı.)
+ * 2 ajanlı üretim hattı:
+ * 1) DeepSeek → protokol planı (ucuz muhakeme)
+ * 2) Gemini 2.5 Pro → nihai Instagram metni (üstün dil kalitesi)
  *
  * @param {{ people: PersonInput[], event?: EventInput, examples?: string[] }} input
  * @param {{ signal?: AbortSignal }} [opts]
@@ -19,39 +19,32 @@ export async function generateProtocol(input, opts = {}) {
   const { people, event } = input;
   const { signal } = opts;
 
-  let raw = await callModel(
-    AGENT_MODELS.writer,
-    socialPostMessages({ people, event }),
-    { temperature: 0.35, maxTokens: 350, signal },
+  const plan = await callModel(
+    AGENT_MODELS.planner,
+    plannerMessages({ people, event }),
+    { temperature: 0.2, maxTokens: 600, signal },
   );
 
-  let enforced = enforceConstitution(raw);
-
-  if (!enforced.ok) {
-    raw = await callModel(
-      AGENT_MODELS.writer,
-      retryMessages({
-        people,
-        event,
-        previousOutput: raw,
-        violations: enforced.violations,
-      }),
-      { temperature: 0.2, maxTokens: 350, signal },
-    );
-    enforced = enforceConstitution(raw);
-  }
-
-  const final = enforced.text;
+  const final = await callModel(
+    AGENT_MODELS.writer,
+    writerMessages({ people, event, plan }),
+    { temperature: 0.4, maxTokens: 500, signal },
+  );
 
   return {
-    ordering: "",
+    ordering: plan,
     draft: "",
-    final,
+    final: final.trim(),
     agents: [
+      {
+        role: AGENT_ROLES.planner,
+        model: AGENT_MODELS.planner,
+        output: plan,
+      },
       {
         role: AGENT_ROLES.writer,
         model: AGENT_MODELS.writer,
-        output: final,
+        output: final.trim(),
       },
     ],
   };

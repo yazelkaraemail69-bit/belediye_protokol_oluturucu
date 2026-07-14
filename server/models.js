@@ -1,11 +1,14 @@
 /**
- * Instagram paylaşım metni için tek model.
- * Ortam değişkeni MODEL_WRITER ile geçersiz kılınabilir.
+ * İki model iş bölümü:
+ * - DeepSeek: ucuz + güçlü muhakeme → protokol planı / mention stratejisi
+ * - Gemini 2.5 Pro: en iyi Türkçe üslup → nihai Instagram metni
  */
 export const AGENT_MODELS = {
-  writer: process.env.MODEL_WRITER ?? "google/gemini-2.5-flash",
+  planner: process.env.MODEL_PLANNER ?? "deepseek/deepseek-chat-v3-0324",
+  writer: process.env.MODEL_WRITER ?? "google/gemini-2.5-pro",
 };
 
 export const AGENT_ROLES = {
-  writer: "Sosyal Medya Editörü",
+  planner: "Protokol Planlayıcı (DeepSeek)",
+  writer: "Sosyal Medya Editörü (Gemini)",
 };

@@ -13,10 +13,9 @@ düzenlemesini sağlayan müşteri paneli modülü.
 - **Manuel düzenleme** – sürükle-bırak ile sıra elle değiştirilebilir.
 - Veriler şu an tarayıcıda (localStorage) saklanır; kod, sonradan API
   bağlanacak şekilde servis katmanına ayrılmıştır (`src/services`).
-- **AI ile Instagram paylaşım metni** – protokoldeki kişiler ve olay bilgisiyle
-  kısa sosyal medya metni üretir (oturma düzeni, konuşma metni vb. yazmaz).
-  **Ana yasa** (`server/constitution.js`) tüm çıktıları zorunlu kılar.
-  OpenRouter anahtarı **yalnızca backend proxy'de** tutulur.
+- **AI ile Instagram paylaşım metni** – DeepSeek protokol planını çıkarır,
+  Gemini 2.5 Pro nihai metni yazar. OpenRouter anahtarı **yalnızca backend
+  proxy'de** tutulur.
 
 ## Geliştirme
 
@@ -52,11 +51,9 @@ Gizli anahtar `.env` içinde tutulur ve depoya gönderilmez (`.gitignore`).
 
 | Dosya | Not |
 | --- | --- |
-| `constitution.js` | **Ana yasa** — yalnızca Instagram paylaşım metni; yasak içerikler |
-| `enforce.js` | Anayasa denetimi ve ihlalde yeniden deneme |
 | `config.js` | ortam değişkenleri; anahtar yalnızca burada okunur |
-| `models.js` | sosyal medya editörü modeli (env ile değiştirilebilir) |
-| `prompts.js` | anayasaya gömülü istemler |
+| `models.js` | DeepSeek (planlayıcı) + Gemini 2.5 Pro (yazar) |
+| `prompts.js` | 2 rol için istemler |
 | `openrouter.js` | OpenRouter istemcisi |
-| `pipeline.js` | tek aşamalı, düşük maliyetli üretim hattı |
+| `pipeline.js` | 2 aşamalı üretim hattı |
 | `index.js` | `GET /api/health`, `POST /api/protocol/generate` |

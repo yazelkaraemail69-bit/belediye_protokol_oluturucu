@@ -12,8 +12,7 @@ interface ProtocolTextPanelProps {
 }
 
 /**
- * AI ile kısa Instagram paylaşım metni üretimi.
- * Ana yasa (server/constitution.js) sunucuda zorunlu kılınır.
+ * AI ile Instagram paylaşım metni — DeepSeek planlar, Gemini yazar.
  */
 export function ProtocolTextPanel({ people }: ProtocolTextPanelProps) {
   const [event, setEvent] = useState<EventContext>({});
@@ -21,6 +20,7 @@ export function ProtocolTextPanel({ people }: ProtocolTextPanelProps) {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ProtocolResult | null>(null);
   const [copied, setCopied] = useState(false);
+  const [showAgents, setShowAgents] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
   function updateEvent(field: keyof EventContext, value: string) {
@@ -67,10 +67,8 @@ export function ProtocolTextPanel({ people }: ProtocolTextPanelProps) {
 
       <div className="card">
         <p className="order-hint" style={{ maxWidth: "none" }}>
-          <SparkleIcon size={14} /> Yalnızca sosyal medyada paylaşılacak kısa
-          metin üretilir: belediye adı, yapılan olay ve protokoldeki kişilerin
-          ad-unvanları. Oturma düzeni, konuşma metni veya tören programı
-          yazılmaz.
+          <SparkleIcon size={14} /> DeepSeek protokol planını çıkarır, Gemini 2.5 Pro
+          nihai Instagram metnini yazar. Oturma düzeni veya konuşma metni üretilmez.
         </p>
 
         <div className="event-grid">
@@ -149,8 +147,30 @@ export function ProtocolTextPanel({ people }: ProtocolTextPanelProps) {
             </div>
             <pre className="result-text">{result.final}</pre>
             <p className="field-hint" style={{ marginTop: 8 }}>
-              {result.final.length} karakter — ana yasa ile sınırlandırılmıştır.
+              {result.final.length} karakter
             </p>
+
+            <button
+              className="link-btn"
+              style={{ marginTop: 12 }}
+              onClick={() => setShowAgents((v) => !v)}
+            >
+              {showAgents ? "Ajan çıktılarını gizle" : "Ajan çıktılarını göster"}
+            </button>
+
+            {showAgents && (
+              <div className="agent-list">
+                {result.agents.map((a) => (
+                  <div key={a.role} className="agent-item">
+                    <div className="agent-head">
+                      <b>{a.role}</b>
+                      <span className="agent-model">{a.model}</span>
+                    </div>
+                    <pre className="result-text small">{a.output}</pre>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

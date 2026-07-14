@@ -1,5 +1,3 @@
-import { PROTOCOL_CONSTITUTION } from "./constitution.js";
-
 function renderPeople(people) {
   return people
     .map((p, i) => `${i + 1}. ${p.name} — ${p.title}`)
@@ -17,25 +15,56 @@ function renderEvent(event) {
 }
 
 /**
- * Tek aşamalı Instagram paylaşım metni istemi.
- * Kişiler zaten protokol sırasına göre gelir (istemci tarafında sıralanmış).
+ * DeepSeek — yapılandırılmış protokol planı üretir (kısa, düşük jeton).
+ * Kişiler protokol sırasına göre gelir (1 = en önemli).
  */
-export function socialPostMessages({ people, event }) {
+export function plannerMessages({ people, event }) {
   return [
     {
       role: "system",
       content:
-        "Sen belediye sosyal medya editörüsün. Görevin yalnızca Instagram'da " +
-        "paylaşılacak kısa bir metin yazmaktır.\n\n" +
-        PROTOCOL_CONSTITUTION,
+        "Sen Türkiye belediye protokol planlayıcısısın. Görevin ham veriden " +
+        "Instagram paylaşım metni için KISA bir plan çıkarmaktır.\n\n" +
+        "Plan şunları içermeli:\n" +
+        "- Belediye adı ve olayın özü (1 cümle)\n" +
+        "- Kişileri protokol sırasına göre nasıl anacağın (Sayın … unvanıyla)\n" +
+        "- Cümle iskeleti önerisi (katılımıyla / katkılarıyla vb.)\n\n" +
+        "YASAK: oturma düzeni, konuşma metni, program akışı, tören adımları.\n" +
+        "Yalnızca planı yaz; nihai paylaşım metnini YAZMA.",
     },
     {
       role: "user",
       content:
-        `Aşağıdaki bilgilerle Instagram paylaşım metni yaz.\n\n` +
+        `Instagram paylaşım metni için plan oluştur.\n\n` +
         `${renderEvent(event)}\n\n` +
-        `Protokolde adı geçen kişiler (1 = en önemli):\n${renderPeople(people)}\n\n` +
-        `Yalnızca paylaşım metnini döndür. Başka açıklama ekleme.`,
+        `Protokoldeki kişiler (1 = en önemli):\n${renderPeople(people)}`,
+    },
+  ];
+}
+
+/**
+ * Gemini — plana dayanarak nihai Instagram metnini yazar.
+ */
+export function writerMessages({ people, event, plan }) {
+  return [
+    {
+      role: "system",
+      content:
+        "Sen belediye sosyal medya editörüsün. Sana bir protokol planı verilir; " +
+        "buna sadık kalarak Instagram'da paylaşılacak kısa, akıcı Türkçe metin yazarsın.\n\n" +
+        "Kurallar:\n" +
+        "- Tek paragraf, 2–4 cümle, en fazla 450 karakter\n" +
+        "- Belediye adı, olay ve kişilerin ad-unvanları geçmeli\n" +
+        "- Oturma düzeni, karşılama, konuşma metni, program akışı YAZMA\n" +
+        "- Doğrudan paylaşım metniyle başla; başlık veya açıklama ekleme",
+    },
+    {
+      role: "user",
+      content:
+        `${renderEvent(event)}\n\n` +
+        `Kişiler:\n${renderPeople(people)}\n\n` +
+        `[Protokol planı]\n${plan}\n\n` +
+        `Plana sadık kalarak nihai Instagram paylaşım metnini yaz.`,
     },
   ];
 }
