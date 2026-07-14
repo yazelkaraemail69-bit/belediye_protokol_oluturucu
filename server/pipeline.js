@@ -28,7 +28,7 @@ export async function generateProtocol(input, opts = {}) {
   const final = await callModel(
     AGENT_MODELS.writer,
     writerMessages({ people, event, plan }),
-    { temperature: 0.4, maxTokens: 500, signal },
+    { temperature: 0.4, maxTokens: 1200, signal },
   );
 
   return {

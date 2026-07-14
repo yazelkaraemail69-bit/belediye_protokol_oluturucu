@@ -56,7 +56,8 @@ export function writerMessages({ people, event, plan }) {
         "- Tek paragraf, 2–4 cümle, en fazla 450 karakter\n" +
         "- Belediye adı, olay ve kişilerin ad-unvanları geçmeli\n" +
         "- Oturma düzeni, karşılama, konuşma metni, program akışı YAZMA\n" +
-        "- Doğrudan paylaşım metniyle başla; başlık veya açıklama ekleme",
+        "- Doğrudan paylaşım metniyle başla; başlık veya açıklama ekleme\n" +
+        "- Cümleyi mutlaka noktalama işaretiyle tamamla",
     },
     {
       role: "user",
