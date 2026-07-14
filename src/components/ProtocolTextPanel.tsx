@@ -12,9 +12,8 @@ interface ProtocolTextPanelProps {
 }
 
 /**
- * AI ile profesyonel protokol metni üretimi.
- * 3 model iş bölümü yapar (sıralama uzmanı → redaktör → baş editör);
- * nihai belge ve ajan çıktıları gösterilir.
+ * AI ile kısa Instagram paylaşım metni üretimi.
+ * Ana yasa (server/constitution.js) sunucuda zorunlu kılınır.
  */
 export function ProtocolTextPanel({ people }: ProtocolTextPanelProps) {
   const [event, setEvent] = useState<EventContext>({});
@@ -22,7 +21,6 @@ export function ProtocolTextPanel({ people }: ProtocolTextPanelProps) {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ProtocolResult | null>(null);
   const [copied, setCopied] = useState(false);
-  const [showAgents, setShowAgents] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
   function updateEvent(field: keyof EventContext, value: string) {
@@ -64,39 +62,46 @@ export function ProtocolTextPanel({ people }: ProtocolTextPanelProps) {
     <div className="section">
       <div className="badge">
         <span className="dot" />
-        AI Protokol Metni
+        Instagram Paylaşım Metni
       </div>
 
       <div className="card">
         <p className="order-hint" style={{ maxWidth: "none" }}>
-          <SparkleIcon size={14} /> En iyi 3 yapay zeka iş bölümü yaparak
-          (sıralama uzmanı → redaktör → baş editör) protokol metnini profesyonelce
-          yazar. Aşağıya etkinlik bilgilerini girip oluşturabilirsiniz.
+          <SparkleIcon size={14} /> Yalnızca sosyal medyada paylaşılacak kısa
+          metin üretilir: belediye adı, yapılan olay ve protokoldeki kişilerin
+          ad-unvanları. Oturma düzeni, konuşma metni veya tören programı
+          yazılmaz.
         </p>
 
         <div className="event-grid">
           <input
             className="input"
-            placeholder="Etkinlik adı (ör. Cumhuriyet Bayramı Töreni)"
+            placeholder="Belediye adı (ör. Tavşanlı Belediyesi)"
+            value={event.municipality ?? ""}
+            onChange={(e) => updateEvent("municipality", e.target.value)}
+          />
+          <input
+            className="input"
+            placeholder="Olay / hizmet (ör. Funda Sokağa okul açılışı)"
             value={event.name ?? ""}
             onChange={(e) => updateEvent("name", e.target.value)}
           />
           <input
             className="input"
-            placeholder="Tarih (ör. 29 Ekim 2026)"
+            placeholder="Tarih (isteğe bağlı)"
             value={event.date ?? ""}
             onChange={(e) => updateEvent("date", e.target.value)}
           />
           <input
             className="input"
-            placeholder="Yer (ör. Belediye Meydanı)"
+            placeholder="Yer (isteğe bağlı)"
             value={event.location ?? ""}
             onChange={(e) => updateEvent("location", e.target.value)}
           />
         </div>
         <textarea
           className="textarea input-mt"
-          placeholder="Ek notlar (isteğe bağlı): program akışı, özel istekler…"
+          placeholder="Ek not (isteğe bağlı): vurgulanacak detay…"
           value={event.notes ?? ""}
           onChange={(e) => updateEvent("notes", e.target.value)}
         />
@@ -113,7 +118,7 @@ export function ProtocolTextPanel({ people }: ProtocolTextPanelProps) {
               </>
             ) : (
               <>
-                <SparkleIcon size={14} /> AI ile Protokol Metni Oluştur
+                <SparkleIcon size={14} /> Instagram Metni Oluştur
               </>
             )}
           </button>
@@ -136,35 +141,16 @@ export function ProtocolTextPanel({ people }: ProtocolTextPanelProps) {
           <div className="result-block">
             <div className="result-head">
               <span className="result-title">
-                <FileIcon size={16} /> Nihai Protokol Belgesi
+                <FileIcon size={16} /> Paylaşım Metni
               </span>
               <button className="btn btn-ghost btn-mono" onClick={handleCopy}>
                 <CopyIcon size={14} /> {copied ? "Kopyalandı" : "Kopyala"}
               </button>
             </div>
             <pre className="result-text">{result.final}</pre>
-
-            <button
-              className="link-btn"
-              style={{ marginTop: 12 }}
-              onClick={() => setShowAgents((v) => !v)}
-            >
-              {showAgents ? "Ajan çıktılarını gizle" : "Ajan çıktılarını göster"}
-            </button>
-
-            {showAgents && (
-              <div className="agent-list">
-                {result.agents.map((a) => (
-                  <div key={a.role} className="agent-item">
-                    <div className="agent-head">
-                      <b>{a.role}</b>
-                      <span className="agent-model">{a.model}</span>
-                    </div>
-                    <pre className="result-text small">{a.output}</pre>
-                  </div>
-                ))}
-              </div>
-            )}
+            <p className="field-hint" style={{ marginTop: 8 }}>
+              {result.final.length} karakter — ana yasa ile sınırlandırılmıştır.
+            </p>
           </div>
         )}
       </div>

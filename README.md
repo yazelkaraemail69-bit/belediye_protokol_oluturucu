@@ -13,10 +13,10 @@ düzenlemesini sağlayan müşteri paneli modülü.
 - **Manuel düzenleme** – sürükle-bırak ile sıra elle değiştirilebilir.
 - Veriler şu an tarayıcıda (localStorage) saklanır; kod, sonradan API
   bağlanacak şekilde servis katmanına ayrılmıştır (`src/services`).
-- **AI ile protokol metni** – en iyi 3 yapay zeka iş bölümü yaparak
-  (sıralama uzmanı → redaktör → baş editör) profesyonel protokol belgesi
-  üretir. OpenRouter anahtarı **yalnızca backend proxy'de** tutulur,
-  tarayıcıya asla gönderilmez.
+- **AI ile Instagram paylaşım metni** – protokoldeki kişiler ve olay bilgisiyle
+  kısa sosyal medya metni üretir (oturma düzeni, konuşma metni vb. yazmaz).
+  **Ana yasa** (`server/constitution.js`) tüm çıktıları zorunlu kılar.
+  OpenRouter anahtarı **yalnızca backend proxy'de** tutulur.
 
 ## Geliştirme
 
@@ -52,13 +52,11 @@ Gizli anahtar `.env` içinde tutulur ve depoya gönderilmez (`.gitignore`).
 
 | Dosya | Not |
 | --- | --- |
+| `constitution.js` | **Ana yasa** — yalnızca Instagram paylaşım metni; yasak içerikler |
+| `enforce.js` | Anayasa denetimi ve ihlalde yeniden deneme |
 | `config.js` | ortam değişkenleri; anahtar yalnızca burada okunur |
-| `models.js` | iş bölümü yapan 3 model kimliği (env ile değiştirilebilir) |
-| `prompts.js` | 3 rol için istemler; `examples` ile few-shot desteğine hazır |
-| `openrouter.js` | OpenRouter istemcisi (chat + model listesi) |
-| `pipeline.js` | 3 aşamalı üretim hattı |
+| `models.js` | sosyal medya editörü modeli (env ile değiştirilebilir) |
+| `prompts.js` | anayasaya gömülü istemler |
+| `openrouter.js` | OpenRouter istemcisi |
+| `pipeline.js` | tek aşamalı, düşük maliyetli üretim hattı |
 | `index.js` | `GET /api/health`, `POST /api/protocol/generate` |
-
-**İleride:** Denetçi (auditor) API'si ayrı bir rol/adaptör olarak; kapsamlı
-protokol örnekleri ise `examples` alanı üzerinden few-shot/RAG olarak
-eklenebilir (kancalar hazır bırakılmıştır).

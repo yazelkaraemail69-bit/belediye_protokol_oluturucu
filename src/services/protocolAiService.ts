@@ -2,6 +2,7 @@ import type { Person } from "../types";
 import { getPositionById } from "../data/protocolPositions";
 
 export interface EventContext {
+  municipality?: string;
   name?: string;
   date?: string;
   location?: string;
