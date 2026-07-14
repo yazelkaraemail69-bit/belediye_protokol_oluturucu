@@ -1,5 +1,5 @@
 import type { Person } from "../types";
-import { getPositionById } from "../data/protocolPositions";
+import { getPersonTitle } from "../utils/personTitle";
 
 export interface EventContext {
   municipality?: string;
@@ -35,7 +35,7 @@ interface GeneratePayloadPerson {
 function toPayloadPeople(people: Person[]): GeneratePayloadPerson[] {
   return [...people].reverse().map((p) => ({
     name: p.name,
-    title: getPositionById(p.positionId)?.title ?? "Diğer / Davetli",
+    title: getPersonTitle(p),
   }));
 }
 

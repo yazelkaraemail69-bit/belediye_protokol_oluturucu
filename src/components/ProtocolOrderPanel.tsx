@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Person } from "../types";
-import { getPositionById } from "../data/protocolPositions";
+import { getPersonTitle } from "../utils/personTitle";
 import { GripIcon, TrashIcon, ListIcon, SparkleIcon } from "./icons";
 
 interface ProtocolOrderPanelProps {
@@ -64,8 +64,6 @@ export function ProtocolOrderPanel({
         ) : (
           <div className="order-list">
             {people.map((person, index) => {
-              const position = getPositionById(person.positionId);
-              // En alttaki kişi 1 numara (en önemli)
               const protocolNo = people.length - index;
               const isMostImportant = index === people.length - 1;
               return (
@@ -98,9 +96,7 @@ export function ProtocolOrderPanel({
                   <span className="rank-chip">{protocolNo}</span>
                   <div className="grow">
                     <div className="person-name">{person.name}</div>
-                    <div className="person-pos">
-                      {position?.title ?? "Bilinmeyen mevki"}
-                    </div>
+                    <div className="person-pos">{getPersonTitle(person)}</div>
                   </div>
                   {isMostImportant && (
                     <span className="most-important-tag">EN ÖNEMLİ</span>

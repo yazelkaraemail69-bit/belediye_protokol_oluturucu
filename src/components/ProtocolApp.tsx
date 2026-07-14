@@ -4,6 +4,7 @@ import type { Person } from "../types";
 import { personRepository } from "../services/personRepository";
 import { insertByRank, sortByProtocol } from "../utils/protocolOrder";
 import { PersonForm } from "./PersonForm";
+import { ProtocolRosterPicker } from "./ProtocolRosterPicker";
 import { ProtocolOrderPanel } from "./ProtocolOrderPanel";
 import { ProtocolTextPanel } from "./ProtocolTextPanel";
 import { FileIcon, UserIcon } from "./icons";
@@ -38,9 +39,36 @@ export function ProtocolApp({ user, onLogout }: ProtocolAppProps) {
     void personRepository.save(people);
   }, [people, loaded]);
 
-  function handleAdd(name: string, positionId: string) {
-    const person: Person = { id: createId(), name, positionId };
+  function handleAdd(name: string, positionId: string, titleLabel?: string) {
+    const person: Person = {
+      id: createId(),
+      name,
+      positionId,
+      ...(titleLabel ? { titleLabel } : {}),
+    };
     setPeople((prev) => insertByRank(prev, person));
+  }
+
+  function handleAddMany(
+    entries: Array<{ name: string; positionId: string; titleLabel?: string }>,
+  ) {
+    setPeople((prev) => {
+      let next = [...prev];
+      for (const entry of entries) {
+        const exists = next.some(
+          (p) =>
+            p.name.localeCompare(entry.name, "tr", { sensitivity: "base" }) === 0,
+        );
+        if (exists) continue;
+        next = insertByRank(next, {
+          id: createId(),
+          name: entry.name,
+          positionId: entry.positionId,
+          ...(entry.titleLabel ? { titleLabel: entry.titleLabel } : {}),
+        });
+      }
+      return next;
+    });
   }
 
   function handleRemove(id: string) {
@@ -73,6 +101,10 @@ export function ProtocolApp({ user, onLogout }: ProtocolAppProps) {
         <div className="divider" />
 
         <div className="badge">Müşteri Paneli</div>
+        <ProtocolRosterPicker
+          existingNames={people.map((p) => p.name)}
+          onAddMany={handleAddMany}
+        />
         <PersonForm onAdd={handleAdd} />
 
         <ProtocolOrderPanel

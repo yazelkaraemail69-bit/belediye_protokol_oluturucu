@@ -4,7 +4,7 @@ import { PROTOCOL_POSITIONS } from "../data/protocolPositions";
 import { UserIcon, BadgeIcon, PlusIcon } from "./icons";
 
 interface PersonFormProps {
-  onAdd: (name: string, positionId: string) => void;
+  onAdd: (name: string, positionId: string, titleLabel?: string) => void;
 }
 
 const DEFAULT_POSITION = "belediye-baskani";

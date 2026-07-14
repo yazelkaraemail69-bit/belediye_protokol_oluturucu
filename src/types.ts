@@ -16,4 +16,6 @@ export interface Person {
   name: string;
   /** Atanan mevkinin anahtarı (ProtocolPosition.id) */
   positionId: string;
+  /** tavsanli.gov.tr protokol listesinden gelen tam unvan (varsa) */
+  titleLabel?: string;
 }

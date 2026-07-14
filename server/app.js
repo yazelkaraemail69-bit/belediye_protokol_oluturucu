@@ -3,6 +3,7 @@ import cors from "cors";
 import { hasApiKey } from "./config.js";
 import { AGENT_MODELS, AGENT_ROLES } from "./models.js";
 import { generateProtocol } from "./pipeline.js";
+import { fetchTavsanliRoster } from "./tavsanliRoster.js";
 import { ApiKeyMissingError, OpenRouterError } from "./openrouter.js";
 
 const app = express();
@@ -19,6 +20,27 @@ app.get("/api/health", (_req, res) => {
       model,
     })),
   });
+});
+
+app.get("/api/protocol/roster", async (req, res) => {
+  try {
+    const refresh = req.query.refresh === "1" || req.query.refresh === "true";
+    const data = await fetchTavsanliRoster({ refresh });
+    const sections = [...new Set(data.people.map((p) => p.section))];
+    res.json({
+      people: data.people,
+      sections,
+      count: data.people.length,
+      fetchedAt: data.fetchedAt,
+      cached: data.cached,
+      source: data.source,
+    });
+  } catch (err) {
+    console.error("Protokol listesi hatası:", err);
+    res.status(502).json({
+      error: err instanceof Error ? err.message : "Protokol listesi alınamadı.",
+    });
+  }
 });
 
 app.post("/api/protocol/generate", async (req, res) => {
