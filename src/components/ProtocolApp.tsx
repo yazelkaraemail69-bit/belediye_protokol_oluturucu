@@ -5,6 +5,7 @@ import { personRepository } from "../services/personRepository";
 import { insertByRank, sortByProtocol } from "../utils/protocolOrder";
 import { PersonForm } from "./PersonForm";
 import { ProtocolOrderPanel } from "./ProtocolOrderPanel";
+import { ProtocolTextPanel } from "./ProtocolTextPanel";
 import { FileIcon, UserIcon } from "./icons";
 
 interface ProtocolAppProps {
@@ -80,6 +81,8 @@ export function ProtocolApp({ user, onLogout }: ProtocolAppProps) {
           onRemove={handleRemove}
           onAutoSort={() => setPeople((prev) => sortByProtocol(prev))}
         />
+
+        <ProtocolTextPanel people={people} />
       </div>
     </div>
   );
