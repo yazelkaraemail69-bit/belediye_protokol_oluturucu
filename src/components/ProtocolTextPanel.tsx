@@ -67,8 +67,9 @@ export function ProtocolTextPanel({ people }: ProtocolTextPanelProps) {
 
       <div className="card">
         <p className="order-hint" style={{ maxWidth: "none" }}>
-          <SparkleIcon size={14} /> DeepSeek protokol planını çıkarır, Gemini 2.5 Pro
-          nihai Instagram metnini yazar. Oturma düzeni veya konuşma metni üretilmez.
+          <SparkleIcon size={14} /> DeepSeek yazım planını çıkarır, Gemini 2.5 Pro
+          Tavşanlı Belediyesi referans üslubunda resmi Instagram metnini yazar.
+          Örnek metinler ve anayasa üslup dışına çıkmayı engeller.
         </p>
 
         <div className="event-grid">
@@ -80,7 +81,7 @@ export function ProtocolTextPanel({ people }: ProtocolTextPanelProps) {
           />
           <input
             className="input"
-            placeholder="Olay / hizmet (ör. Funda Sokağa okul açılışı)"
+            placeholder="Olay / etkinlik (ör. Funda Sokağa okul açılışı, saha incelemesi)"
             value={event.name ?? ""}
             onChange={(e) => updateEvent("name", e.target.value)}
           />
@@ -99,7 +100,7 @@ export function ProtocolTextPanel({ people }: ProtocolTextPanelProps) {
         </div>
         <textarea
           className="textarea input-mt"
-          placeholder="Ek not (isteğe bağlı): vurgulanacak detay…"
+          placeholder="Ek not: program akışı, ziyaret detayı, vurgulanacak hususlar…"
           value={event.notes ?? ""}
           onChange={(e) => updateEvent("notes", e.target.value)}
         />

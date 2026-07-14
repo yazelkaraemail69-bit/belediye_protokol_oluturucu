@@ -1,6 +1,7 @@
 import { callModel } from "./openrouter.js";
 import { AGENT_MODELS, AGENT_ROLES } from "./models.js";
 import { plannerMessages, writerMessages } from "./prompts.js";
+import { enforceConstitution, retryMessages } from "./enforce.js";
 
 /**
  * @typedef {{ name: string, title: string }} PersonInput
@@ -8,12 +9,9 @@ import { plannerMessages, writerMessages } from "./prompts.js";
  */
 
 /**
- * 2 ajanlı üretim hattı:
- * 1) DeepSeek → protokol planı (ucuz muhakeme)
- * 2) Gemini 2.5 Pro → nihai Instagram metni (üstün dil kalitesi)
- *
- * @param {{ people: PersonInput[], event?: EventInput, examples?: string[] }} input
- * @param {{ signal?: AbortSignal }} [opts]
+ * 2 ajanlı üretim hattı (referans örnekler + anayasa):
+ * 1) DeepSeek → yapısal yazım planı
+ * 2) Gemini 2.5 Pro → referans üslubunda nihai metin
  */
 export async function generateProtocol(input, opts = {}) {
   const { people, event } = input;
@@ -22,19 +20,36 @@ export async function generateProtocol(input, opts = {}) {
   const plan = await callModel(
     AGENT_MODELS.planner,
     plannerMessages({ people, event }),
-    { temperature: 0.2, maxTokens: 600, signal },
+    { temperature: 0.25, maxTokens: 2000, signal },
   );
 
-  const final = await callModel(
+  let raw = await callModel(
     AGENT_MODELS.writer,
     writerMessages({ people, event, plan }),
-    { temperature: 0.4, maxTokens: 8000, signal },
+    { temperature: 0.35, maxTokens: 8000, signal },
   );
+
+  let enforced = enforceConstitution(raw);
+
+  if (!enforced.ok) {
+    raw = await callModel(
+      AGENT_MODELS.writer,
+      retryMessages({
+        plan,
+        previousOutput: raw,
+        violations: enforced.violations,
+      }),
+      { temperature: 0.25, maxTokens: 8000, signal },
+    );
+    enforced = enforceConstitution(raw);
+  }
+
+  const final = enforced.text;
 
   return {
     ordering: plan,
     draft: "",
-    final: final.trim(),
+    final,
     agents: [
       {
         role: AGENT_ROLES.planner,
@@ -44,7 +59,7 @@ export async function generateProtocol(input, opts = {}) {
       {
         role: AGENT_ROLES.writer,
         model: AGENT_MODELS.writer,
-        output: final.trim(),
+        output: final,
       },
     ],
   };
